@@ -1,0 +1,46 @@
+<!-- templates/library/checkout.html: Stripe checkout page -->
+{% extends 'libraryApp/base.html' %}
+
+{% block title %}Checkout - {{ book.title }}{% endblock %}
+
+{% block content %}
+    <h1 class="text-3xl font-bold mb-6">Checkout: {{ book.title }}</h1>
+    
+    <div class="max-w-md mx-auto">
+        <p class="mb-4">Price: ${{ book.price }}</p>
+        <form id="payment-form" method="POST">
+            {% csrf_token %}
+            {{ form }}
+            <!-- Stripe Elements -->
+            <div id="card-element" class="border p-2 mb-4"></div>
+            <div id="card-errors" class="text-red-500 mb-4"></div>
+            <button type="submit" class="btn w-full">Pay Now</button>
+        </form>
+    </div>
+    
+    <!-- Stripe JS -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        const stripe = Stripe('{{ stripe_key }}');
+        const elements = stripe.elements();
+        const card = elements.create('card');
+        card.mount('#card-element');
+        
+        const form = document.getElementById('payment-form');
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const {token, error} = await stripe.createToken(card);
+            if (error) {
+                document.getElementById('card-errors').textContent = error.message;
+            } else {
+                // Add token to form and submit (handle in view)
+                const hiddenInput = document.createElement('input');
+                hiddenInput.setAttribute('type', 'hidden');
+                hiddenInput.setAttribute('name', 'stripeToken');
+                hiddenInput.setAttribute('value', token.id);
+                form.appendChild(hiddenInput);
+                form.submit();
+            }
+        });
+    </script>
+{% endblock %}

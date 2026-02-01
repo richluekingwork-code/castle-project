@@ -1,0 +1,24 @@
+<!-- templates/library/dashboard.html: User dashboard for purchased books -->
+{% extends 'libraryApp/base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+    <h1 class="text-3xl font-bold mb-6">Your Purchased Library</h1>
+    
+    {% if purchases %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {% for purchase in purchases %}
+                <div class="card">
+                    <h2 class="text-xl font-semibold">{{ purchase.book_set.title }}</h2>
+                    <p>Purchased on: {{ purchase.purchased_at|date:"F j, Y" }}</p>
+                    <p>Expires: {{ purchase.access_expires|default:"Never" }}</p>
+                    <a href="{% url 'download_set' purchase.book_set.id %}" class="btn mt-2">Download Full Set (ZIP)</a>
+                    <a href="{% url 'book_detail' purchase.book_set.pk %}" class="text-blue-500 mt-2 block">View Details</a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>You haven't purchased any books yet. <a href="{% url 'library_list' %}" class="text-blue-500">Browse the library</a>.</p>
+    {% endif %}
+{% endblock %}

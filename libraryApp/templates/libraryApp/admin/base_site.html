@@ -1,0 +1,10 @@
+<!-- templates/admin/base_site.html: Custom Django Admin base (override) -->
+{% extends "admin/base.html" %}
+
+{% block title %}{{ title }} | Legal Library Admin{% endblock %}
+
+{% block branding %}
+    <h1 id="site-name"><a href="{% url 'admin:index' %}">Legal Library Admin</a></h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

@@ -1,0 +1,136 @@
+<!-- templates/library/detail.html -->
+{% extends 'libraryApp/base.html' %}
+
+{% block title %}{{ book.title }}{% endblock %}
+
+{% block content %}
+    <div class="flex flex-col md:flex-row gap-8" x-data="{
+        showModal: false,
+        pdfUrl: '',
+        currentPage: 1,
+        scale: 1.5,
+        pdfDoc: null,
+        numPages: 0,
+        searchQuery: '',
+        annotations: JSON.parse(localStorage.getItem('annotations_{{ book.id }}')) || {},
+        thumbnails: []
+    }">
+        <!-- Left: Cover and Buy -->
+        <div class="md:w-1/3">
+            {% if book.cover_image %}
+                <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="w-full mb-4">
+            {% endif %}
+            <h1 class="text-3xl font-bold mb-2">{{ book.title }}</h1>
+            <p class="text-gray-600 mb-4">By {{ book.author }}</p>
+            <p class="font-bold text-xl mb-4">
+                {% if book.access_type == 'free' %}Free{% else %}${{ book.price }}{% endif %}
+            </p>
+            {% if book.access_type != 'free' %}
+                {% if user.is_authenticated %}
+                    <a href="{% url 'checkout' book.id %}" class="btn block mb-4">Buy Full Access</a>
+                {% else %}
+                    <a href="{% url 'login' %}?next={% url 'checkout' book.id %}" class="btn block mb-4">Login to Buy</a>
+                {% endif %}
+            {% endif %}
+            <p class="mb-4">Categories: {% for cat in book.categories.all %}{{ cat.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+            <a href="{{ feedback_url }}" class="text-blue-500">Email Feedback to Author</a>
+        </div>
+        
+        <!-- Right: Description, TOC, Preview -->
+        <div class="md:w-2/3">
+            <h2 class="text-2xl font-semibold mb-4">About the Book</h2>
+            <p class="mb-6">{{ book.description }}</p>
+            
+            <!-- Beta Status -->
+            {% if book.updated_at %}
+                <div class="bg-yellow-100 p-4 mb-6 rounded">
+                    <h3 class="font-semibold">Current Status: Beta</h3>
+                    <p>Last updated: {{ book.updated_at|date:"F j, Y" }}</p>
+                    <p>New versions monthly. Buy now for free lifetime updates!</p>
+                </div>
+            {% endif %}
+            
+            <!-- TOC: Volumes Accordion -->
+            <h2 class="text-2xl font-semibold mb-4">Table of Contents</h2>
+            <div x-data="{ openVolume: null }">
+                {% for volume in volumes %}
+                    <div class="border-b py-2">
+                        <div class="flex justify-between cursor-pointer" @click="openVolume = (openVolume === {{ forloop.counter }} ? null : {{ forloop.counter }})">
+                            <span>{{ volume.title|default:"Volume "|add:volume.volume_number }}</span>
+                            <span x-text="openVolume === {{ forloop.counter }} ? '▼' : '▶'"></span>
+                        </div>
+                        <div x-show="openVolume === {{ forloop.counter }}" class="mt-2">
+                            <p>Preview available for first {{ book.preview_pages }} pages.</p>
+                                <a href="{{ volume.pdf_file.url }}" target="_blank" class="text-blue-500 hover:underline">View Full PDF</a>
+                                {% if volume.preview_pdf %}
+                                    <a href="{{ volume.preview_pdf.url }}" target="_blank" class="text-blue-500 hover:underline">View Preview</a>
+                                {% else %}
+                                    <span class="text-gray-500">Preview not available</span>
+                                {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Preview Modal -->
+            <div x-show="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click.away="showModal = false">
+                <div class="bg-white p-4 rounded-lg w-11/12 md:w-3/4 h-3/4 flex relative">
+                    <!-- Thumbnail Sidebar -->
+                    <div class="w-1/4 border-r pr-4 overflow-y-auto hidden md:block">
+                        <h3 class="text-lg font-semibold mb-2">Thumbnails</h3>
+                        <template x-for="(thumb, index) in thumbnails" :key="index">
+                            <div class="mb-2 cursor-pointer" @click="currentPage = index + 1; renderPage();">
+                                <img :src="thumb" class="w-full border" :alt="'Page ' + (index + 1)">
+                            </div>
+                        </template>
+                    </div>
+                    
+                    <!-- Main Preview Area -->
+                    <div class="w-full md:w-3/4 pl-4 relative">
+                        <button @click="showModal = false" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">Close</button>
+                        <h3 class="text-xl mb-4">Preview</h3>
+                        
+                        <!-- Controls -->
+                        <div class="flex flex-col sm:flex-row justify-between mb-4 gap-4">
+                            <div class="flex items-center gap-2">
+                                <button @click="if (currentPage > 1) { currentPage--; renderPage(); }" class="btn">Previous</button>
+                                <span x-text="'Page ' + currentPage + ' of ' + numPages"></span>
+                                <button @click="currentPage = Math.min(currentPage + 1, numPages); renderPage();" class="btn">Next</button>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button @click="scale = Math.max(0.5, scale - 0.25); renderPage();" class="btn">Zoom Out</button>
+                                <span x-text="'Zoom: ' + (scale * 100) + '%'"></span>
+                                <button @click="scale = Math.min(2.5, scale + 0.25); renderPage();" class="btn">Zoom In</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Search Bar -->
+                        <div class="mb-4">
+                            <input type="text" x-model="searchQuery" @input.debounce="searchText()" placeholder="Search in PDF..." class="border p-2 w-full">
+                        </div>
+                        
+                        <!-- Canvas -->
+                        <div class="overflow-auto h-96 relative">
+                            <canvas id="pdf-canvas" class="w-full border mx-auto"></canvas>
+                            <!-- Annotations -->
+                            <div id="annotation-layer" class="absolute top-0 left-0 w-full h-full pointer-events-none"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Simple JavaScript for the accordion functionality -->
+    <script>
+        // No complex PDF handling needed anymore
+        console.log('Simple PDF links initialized');
+
+                // No additional JavaScript needed
+                console.log('PDF links ready');
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    </script>
+{% endblock %}
