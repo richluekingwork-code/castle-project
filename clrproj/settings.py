@@ -118,28 +118,20 @@ WSGI_APPLICATION = 'clrproj.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+
+"""DATABASES = {
+    'default': dj_database_url.config(conn_max_age=600)
+}
+"""
 DATABASES = {
     'default': dj_database_url.config(
-        default=config('DATABASE_URL', default='sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3')),
-        conn_max_age=600
+        # Looks first for env var DATABASE_URL
+        # Falls back to sqlite only if DATABASE_URL is missing (good for local dev without DB)
+        default=config('DATABASE_URL', default='sqlite:///' + str(BASE_DIR / 'db.sqlite3')),
+        conn_max_age=600,          # keep-alive is fine
+        conn_health_checks=True,   # optional but recommended on Railway
     )
 }
-
-# production db setup with postgres
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST'),
-        'PORT': config('DB_PORT'),
-    }
-}
-
-
-
-
 
 
 
