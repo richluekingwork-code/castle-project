@@ -29,8 +29,18 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 #ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='.railway.app,localhost,127.0.0.1', cast=Csv())
-# CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='http://127.0.0.1', cast=Csv())
-ALLOWED_HOSTS = ['*']  # ← only for debugging — don't leave this in prod!
+# ALLOWED_HOSTS = ['*']  
+ALLOWED_HOSTS = config(
+    'ALLOWED_HOSTS',
+    default='.railway.app,localhost,127.0.0.1',
+    cast=Csv()
+)
+
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default='https://.railway.app,http://.railway.app',
+    cast=Csv()
+)
 
 # Application definition
 
