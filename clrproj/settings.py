@@ -28,7 +28,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost', cast=Csv())
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='.railway.app,localhost,127.0.0.1', cast=Csv())
 # CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='http://127.0.0.1', cast=Csv())
 
 
@@ -189,6 +189,7 @@ CLOUDINARY_STORAGE = {
     'CLOUDINARY_URL': config('CLOUDINARY_URL', default='')
 }
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+# print("CLOUDINARY_URL from env:", os.environ.get('CLOUDINARY_URL', 'MISSING'))
 
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
