@@ -28,19 +28,20 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-#ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='.railway.app,localhost,127.0.0.1', cast=Csv())
-# ALLOWED_HOSTS = ['*']  
-ALLOWED_HOSTS = config(
-    'ALLOWED_HOSTS',
-    default='.railway.app,localhost,127.0.0.1',
-    cast=Csv()
-)
+ALLOWED_HOSTS = [
+    '.railway.app',           # wildcard for hosts
+    'web-production-46b5e.up.railway.app',
+    'localhost',
+    '127.0.0.1',
+]
+# Optional but helpful in prod
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True  # Forces HTTPS redirects (Railway already does this, but safe)
 
-CSRF_TRUSTED_ORIGINS = config(
-    'CSRF_TRUSTED_ORIGINS',
-    default='https://.railway.app,http://.railway.app',
-    cast=Csv()
-)
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.railway.app",
+    "https://web-production-46b5e.up.railway.app",  # your exact domain for safety
+]
 
 # Application definition
 
