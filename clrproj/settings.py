@@ -28,20 +28,28 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
+# 1. Hosts
 ALLOWED_HOSTS = [
-    '.railway.app',           # wildcard for hosts
-    'web-production-46b5e.up.railway.app',
+    '.railway.app',
+    'castlegengroup.com',
+    'www.castlegengroup.com',
     'localhost',
     '127.0.0.1',
 ]
-# Optional but helpful in prod
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT = True  # Forces HTTPS redirects (Railway already does this, but safe)
 
+# 2. CSRF & Security (Critical for Custom Domains)
 CSRF_TRUSTED_ORIGINS = [
+    "https://castlegengroup.com",
+    "https://www.castlegengroup.com",
     "https://*.railway.app",
-    "https://web-production-46b5e.up.railway.app",  # your exact domain for safety
 ]
+
+# 3. Handle the Cloudflare HTTPS Proxy
+# This tells Django "If Cloudflare says it's HTTPS, believe it."
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 # Application definition
 
