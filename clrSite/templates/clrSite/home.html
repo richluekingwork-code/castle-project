@@ -93,7 +93,7 @@
             <div class="relative" data-aos="fade-right">
                 <div class="absolute -top-4 -left-4 w-24 h-24 bg-secondary/20 rounded-full z-0"></div>
                 {% if about_info and about_info.image %}
-                    <img src="{{ about_info.image.url }}" alt="About Us" class="relative z-10 rounded-lg shadow-2xl w-full object-cover h-[500px]">
+                    <img src="{{ about_info.image.url }}" alt="About Us" class="relative z-10 rounded-lg shadow-2xl w-full object-contain h-[500px]">
                 {% else %}
                     <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="relative z-10 rounded-lg shadow-2xl w-full object-cover h-[500px]">
                 {% endif %}

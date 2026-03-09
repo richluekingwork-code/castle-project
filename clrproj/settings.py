@@ -42,14 +42,16 @@ CSRF_TRUSTED_ORIGINS = [
     "https://castlegengroup.com",
     "https://www.castlegengroup.com",
     "https://*.railway.app",
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
 ]
 
 # 3. Handle the Cloudflare HTTPS Proxy
 # This tells Django "If Cloudflare says it's HTTPS, believe it."
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# SECURE_SSL_REDIRECT = True
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
 
 # Application definition
 
@@ -203,9 +205,10 @@ LOGIN_URL = '/accounts/login/'
 
 
 # CLOUDINARY
-# CLOUDINARY
 CLOUDINARY_STORAGE = {
-    'CLOUDINARY_URL': config('CLOUDINARY_URL', default='')
+    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default=''),
+    'API_KEY': config('CLOUDINARY_API_KEY', default=''),
+    'API_SECRET': config('CLOUDINARY_API_SECRET', default=''),
 }
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 # print("CLOUDINARY_URL from env:", os.environ.get('CLOUDINARY_URL', 'MISSING'))

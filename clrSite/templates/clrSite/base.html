@@ -55,17 +55,19 @@
         <div class="container mx-auto px-6 py-4 flex justify-between items-center">
             <!-- Logo -->
             <a href="{% url 'clrSite:home' %}" class="flex items-center gap-2 group">
+                
+                <!-- <div class="bg-primary text-white w-10 h-10 flex items-center justify-center rounded-lg font-bold text-xl shadow-lg group-hover:bg-secondary transition-colors">C</div>
+                <div class="font-serif">
+                    <span class="block text-xl font-bold text-primary leading-none">Castle</span>
+                    <span class="text-xs tracking-widest text-gray-500 uppercase">General Group</span>
+                </div> -->
+                
+                
                 {% if logo and logo.image %}
-                    <img src="{{ logo.image.url }}" alt="Castle Group Logo" class="h-12 w-auto object-contain">
-                {% else %}
-                    <div class="bg-primary text-white w-10 h-10 flex items-center justify-center rounded-lg font-bold text-xl shadow-lg group-hover:bg-secondary transition-colors">
-                        C
-                    </div>
-                    <div class="font-serif">
-                        <span class="block text-xl font-bold text-primary leading-none">Castle</span>
-                        <span class="text-xs tracking-widest text-gray-500 uppercase">General Group</span>
-                    </div>
+                    <div class="h-12 w-px bg-gray-200 mx-4"></div>
+                    <img src="{{ logo.image.url }}" alt="Castle General Group Logo" class="absolute h-40 w-40 object-contain top-12 -translate-y-1/2">
                 {% endif %}
+
             </a>
 
             <!-- Desktop Menu -->

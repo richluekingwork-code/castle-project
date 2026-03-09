@@ -131,11 +131,11 @@ class Our_Mission_Vision_Statement(models.Model):
     founder_fullname = models.CharField(max_length=255, blank=True, null=True)
     founder_title = models.CharField(max_length=255, blank=True, null=True)
     founder_quote = models.CharField(max_length=255, blank=True, null=True)
-    history=RichTextUploadingField() 
-    mission_statement = RichTextUploadingField() 
-    vision_statement = RichTextUploadingField()  
-    our_values = RichTextUploadingField()  
-    our_purpose = RichTextUploadingField() 
+    history=RichTextUploadingField(blank=True, null=True) 
+    mission_statement = RichTextUploadingField(blank=True, null=True) 
+    vision_statement = RichTextUploadingField(blank=True, null=True)  
+    our_values = RichTextUploadingField(blank=True, null=True)  
+    our_purpose = RichTextUploadingField(blank=True, null=True) 
     slogan=models.TextField(max_length=250, blank=True, null=True)
     year_founded_est = models.DateTimeField(blank=True, null=True, validators=[past_datetime_validator])  # Apply the custom validator
     date = models.DateTimeField(auto_now_add=True)  # Updated for date
@@ -149,7 +149,8 @@ class Services(models.Model):
     title = models.CharField(max_length=255)  # Title of the project
     description = RichTextUploadingField()  # Detailed information about the project
     date = models.DateTimeField(auto_now_add=True)  # Updated for date
-
+    image = models.ImageField(upload_to='services/images/', blank=True) 
+    
     def __str__(self):
         return f"{self.group.name if self.group else 'No Group'} - {self.title}"
     
