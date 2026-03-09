@@ -204,11 +204,23 @@ MEDIA_URL = '/media/'
 LOGIN_URL = '/accounts/login/'
 
 
+import urllib.parse
 # CLOUDINARY
+_cloudinary_url = config('CLOUDINARY_URL', default='')
+_cloud_name = config('CLOUDINARY_CLOUD_NAME', default='')
+_api_key = config('CLOUDINARY_API_KEY', default='')
+_api_secret = config('CLOUDINARY_API_SECRET', default='')
+
+if _cloudinary_url and not _cloud_name:
+    _parsed = urllib.parse.urlparse(_cloudinary_url)
+    _cloud_name = _parsed.hostname
+    _api_key = _parsed.username
+    _api_secret = _parsed.password
+
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default=''),
-    'API_KEY': config('CLOUDINARY_API_KEY', default=''),
-    'API_SECRET': config('CLOUDINARY_API_SECRET', default=''),
+    'CLOUD_NAME': _cloud_name,
+    'API_KEY': _api_key,
+    'API_SECRET': _api_secret,
 }
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 # print("CLOUDINARY_URL from env:", os.environ.get('CLOUDINARY_URL', 'MISSING'))
