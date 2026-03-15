@@ -34,7 +34,7 @@
                         {{ project.description|safe|striptags }}
                     </div>
                     <div class="mt-4 text-gray-400 text-xs transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-100">
-                        <i class="far fa-calendar-alt mr-2"></i> {{ project.proj_date|date:"F Y" }}
+                        <!--<i class="far fa-calendar-alt mr-2"></i> {{ project.proj_date|date:"F Y" }}-->
                     </div>
                 </div>
             </div>
@@ -47,4 +47,126 @@
         </div>
     </div>
 </section>
+
+<!-- Gallery Modal -->
+<div id="galleryModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 md:p-8">
+    <!-- Backdrop with glassmorphism -->
+    <div class="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity duration-300" onclick="closeGallery()"></div>
+    
+    <!-- Modal Content -->
+    <div class="relative max-w-6xl w-full max-h-[90vh] flex flex-col items-center justify-center z-10 animate-in fade-in zoom-in duration-300">
+        <!-- Close Button -->
+        <button onclick="closeGallery()" class="absolute -top-12 right-0 md:-right-12 text-white hover:text-secondary transition-colors p-2 text-3xl focus:outline-none" aria-label="Close Gallery">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <!-- Navigation Buttons -->
+        <button onclick="changeImage(-1)" class="absolute left-0 md:-left-16 text-white hover:text-secondary transition-colors p-4 text-4xl focus:outline-none" aria-label="Previous Image">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button onclick="changeImage(1)" class="absolute right-0 md:-right-16 text-white hover:text-secondary transition-colors p-4 text-4xl focus:outline-none" aria-label="Next Image">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+
+        <!-- Image Container -->
+        <div class="relative w-full h-full flex items-center justify-center bg-gray-900 rounded-lg overflow-hidden shadow-2xl">
+            <img id="modalImage" src="" alt="" class="max-w-full max-h-[80vh] object-contain">
+            
+            <!-- Caption -->
+            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 text-white">
+                <span id="modalCategory" class="text-secondary text-xs font-bold uppercase tracking-widest mb-1 block"></span>
+                <h3 id="modalTitle" class="text-xl md:text-2xl font-bold font-serif"></h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentProjectIndex = 0;
+    const projectCards = document.querySelectorAll('.group.relative.cursor-pointer');
+    const modal = document.getElementById('galleryModal');
+    const modalImg = document.getElementById('modalImage');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalCategory = document.getElementById('modalCategory');
+
+    const projectsData = Array.from(projectCards).map((card, index) => {
+        const img = card.querySelector('img');
+        const title = card.querySelector('h3').textContent.trim();
+        const category = card.querySelector('.text-secondary').textContent.trim();
+        
+        // Add click listener to each card
+        card.onclick = () => openGallery(index);
+        
+        return {
+            src: img ? img.src : '',
+            title: title,
+            category: category
+        };
+    });
+
+    function openGallery(index) {
+        currentProjectIndex = index;
+        updateModalContent();
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+    }
+
+    function closeGallery() {
+        modal.classList.add('hidden');
+        document.body.style.overflow = ''; // Restore scrolling
+    }
+
+    function updateModalContent() {
+        const data = projectsData[currentProjectIndex];
+        if (data.src) {
+            modalImg.src = data.src;
+            modalImg.alt = data.title;
+            modalTitle.textContent = data.title;
+            modalCategory.textContent = data.category;
+        }
+    }
+
+    function changeImage(step) {
+        currentProjectIndex = (currentProjectIndex + step + projectsData.length) % projectsData.length;
+        // Fade effect during transition
+        modalImg.style.opacity = '0';
+        setTimeout(() => {
+            updateModalContent();
+            modalImg.style.opacity = '1';
+        }, 150);
+    }
+
+    // Keyboard controls
+    document.addEventListener('keydown', (e) => {
+        if (modal.classList.contains('hidden')) return;
+        
+        if (e.key === 'Escape') closeGallery();
+        if (e.key === 'ArrowRight') changeImage(1);
+        if (e.key === 'ArrowLeft') changeImage(-1);
+    });
+</script>
+
+<style>
+    /* Custom animations for modal */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @keyframes zoomIn {
+        from { transform: scale(0.95); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+    .animate-in {
+        animation-fill-mode: forwards;
+    }
+    .fade-in {
+        animation-name: fadeIn;
+    }
+    .zoom-in {
+        animation-name: zoomIn;
+    }
+    #modalImage {
+        transition: opacity 0.15s ease-in-out;
+    }
+</style>
 {% endblock %}
