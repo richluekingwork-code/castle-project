@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import (
-    HeroImages, Services, Projects, Stat, TestimonyAndSayings,
+    HeroImages, Services, Projects, ProjectImage, Stat, TestimonyAndSayings,
     Team, PartnersAndSponsors, BackgroundImg, Our_Mission_Vision_Statement,
     BlogNews_Updates, ContactInfo, Group, WebsiteLogo, WebsiteTitle,
     NavContent, MenuItem, SubMenuItem, Programs,
@@ -25,10 +25,20 @@ class ServicesAdmin(admin.ModelAdmin):
     list_display = ('title', 'group', 'date')
     list_filter = ('group',)
 
+class ProjectImageInline(admin.TabularInline):
+    model = ProjectImage
+    extra = 3
+    fields = ('image', 'caption', 'order')
+
+
 @admin.register(Projects)
 class ProjectsAdmin(admin.ModelAdmin):
-    list_display = ('title', 'group', 'proj_date')
+    list_display = ('title', 'group', 'created_at')
     list_filter = ('group',)
+    inlines = [ProjectImageInline]
+
+    class Media:
+        js = ('clrSite/js/multi_upload.js',)
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):

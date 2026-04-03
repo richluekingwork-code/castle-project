@@ -99,14 +99,31 @@ class Projects(models.Model):
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, blank=True, null=True)  # Group for categorization
     title = models.CharField(max_length=255)  # Title of the project
     description = RichTextUploadingField()  # Detailed information about the project
-    image = models.ImageField(upload_to='projects/images/', blank=True)
-    proj_date = models.DateTimeField()  # Updated for date
+    created_at = models.DateTimeField(auto_now_add=True)  # Upload time
 
     def __str__(self):
         return f"{self.group.name if self.group else 'No Group'} - {self.title}"
     
     
+class ProjectImage(models.Model):
+    project = models.ForeignKey(Projects, on_delete=models.CASCADE, related_name='gallery_images')
+    image = models.ImageField(
+        upload_to='projects/gallery/',
+        validators=[FileExtensionValidator(['jpg', 'jpeg', 'png', 'gif'])]
+    )
+    caption = models.CharField(max_length=255, blank=True, null=True)
+    order = models.PositiveIntegerField(default=0)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order', 'uploaded_at']
+
+    def __str__(self):
+        return f"Image for {self.project.title}"
+
+
 class Programs(models.Model):
+
     CATEGORY_CHOICES = [
         ('research', 'Research & Studies'),
         ('education', 'Educational Materials'),

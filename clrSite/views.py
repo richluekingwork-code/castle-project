@@ -29,7 +29,7 @@ class HomeView(ContextMixin, TemplateView):
         # Fetch data for the landing page
         context['hero_images'] = HeroImages.objects.order_by('-submitted_at')
         context['services'] = Services.objects.all()[:6]
-        context['projects'] = Projects.objects.order_by('-proj_date')[:6]
+        context['projects'] = Projects.objects.order_by('-created_at')[:6]
         context['stats'] = Stat.objects.all()
         context['testimonials'] = TestimonyAndSayings.objects.order_by('-published_date')
         context['team'] = Team.objects.all()[:4]
@@ -65,7 +65,10 @@ class ProjectsView(ContextMixin, ListView):
     model = Projects
     template_name = "clrSite/projects.html"
     context_object_name = 'projects'
-    ordering = ['-proj_date']
+    ordering = ['-created_at']
+
+    def get_queryset(self):
+        return Projects.objects.prefetch_related('gallery_images').order_by('-created_at')
 
 class ContactView(ContextMixin, FormView):
     template_name = "clrSite/contact.html"
